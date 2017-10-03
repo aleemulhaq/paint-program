@@ -48,7 +48,7 @@ void keyboard(unsigned char key, int xIn, int yIn)
 	{
 		case 'q':
 		case 27:	//27 is the esc key
-			exit(0);
+			exit(0); //exit program
 			break;
 
 		case 'x':
