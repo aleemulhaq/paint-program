@@ -12,6 +12,7 @@
 #endif
 
 #include "init.h"
+#include "instructions.h"
 
 #define X 0
 #define Y 1
@@ -284,6 +285,8 @@ void createMenu()
 /* main function - program entry point */
 int main(int argc, char **argv)
 {
+	Instructions ins;
+	ins.instructions();
 	glutInit(&argc, argv); //starts up GLUT
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 

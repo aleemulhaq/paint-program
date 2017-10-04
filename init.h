@@ -4,7 +4,7 @@
 class Init{
 public:
 	Init();	//constructor
-	void init(void);	//hello function
+	void init(void);
 
 	float publicVar;
 private:
