@@ -6,7 +6,7 @@ Instructions::Instructions(){	//constructor
 
 void Instructions::instructions(){
     printf("\n******************************************************************");
-    printf("\nHello, I am a Paint Program.\nMy creator is:\n");
+    printf("\nHello, I am a Paint Program.\nI was developed by:\n");
     printf("Name: Aleem Haq\nStudent no: 001330201\n");
     printf("\nFollowing are the instructions to operate me:\n");
     printf("\n1) Right click anywhere on program screen for menu prompt.\n");
