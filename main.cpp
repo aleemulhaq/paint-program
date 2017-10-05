@@ -16,7 +16,6 @@
 
 //Globals
 Instructions ins;
-bool click = false;
 bool isDrawPoint = true;
 bool isDrawLine = false;
 bool isDrawRect = false;
@@ -24,7 +23,7 @@ bool isDrawCircle = false;
 bool isDrawRadial = false;
 int xi, yi, xf, yf;
 int first = 0;
-int ww = 600, wh = 600; //window size
+int ww = 600, wh = 600; //window size, ww: WindowWidth, wh: WindowHeight
 float pointSize = 7.0;
 float red, green, blue = 0.0f; //colour used to draw
 
@@ -216,11 +215,8 @@ void drawCircle(int x, int y){
 	case 1:
 		xf = x;
 		yf = (wh - y);
-		
-		
-
-		float r = sqrt( (xf-x) * (xf-x) + (yf-y) * (yf-y) );    //equation of a circle is r = x^2 + y^2
-		float deg = 0.0174532925;
+		float r = sqrt( (xf-x) * (xf-x) + (yf-y) * (yf-y) );//r = x^2 + y^2
+		float deg = 0.0174532925; //constant part of circle algorithm
 		for (float theta = deg; theta <= 361*deg; theta+=deg){
 			bresenhamAlg(
 				(x + r*cos(theta)), 
@@ -229,9 +225,6 @@ void drawCircle(int x, int y){
 				(y + r*sin(theta+deg))
 			);
 		}
-
-
-		
 		first = 0;
 		break;
 	}
@@ -366,7 +359,7 @@ void FPSTimer(int value)
 	glutPostRedisplay();
 }
 
-double randd()
+double randomNumGen()
 { //stackoverflow
 	return (double)rand() / (RAND_MAX + 1.0);
 }
@@ -382,10 +375,10 @@ void mainMenuProc(int value)
 		printf("Screen cleared.\n");
 		break;
 	case 2: //choose random colour
-		printf("Colour x selected at random.\n");
-		red = randd();
-		green = randd();
-		blue = randd();
+		printf("A random colour has been selected.\n");
+		red = randomNumGen();
+		green = randomNumGen();
+		blue = randomNumGen();
 		printf("Colour scheme: Red %.1f, Green %.1f, Blue %.1f.\n", red, green, blue);
 		break;
 	case 3: //radial paintBrush
