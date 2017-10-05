@@ -505,7 +505,7 @@ int main(int argc, char **argv)
 	glutInitWindowSize(ww, wh);
 	glutInitWindowPosition(50, 50);
 
-	glutCreateWindow("Paint Program"); //creates the window
+	glutCreateWindow("Paint.x"); //creates the window
 
 	//display callback
 	glutDisplayFunc(display);
