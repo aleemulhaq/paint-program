@@ -14,139 +14,31 @@
 #include "instructions.h"
 
 //Globals
-float camPos[] = {0, 0, 3.42f}; //where the camera is
-
 bool click = false;
 int xi, yi, xf, yf;
 int first = 0;
 int ww = 600, wh = 600; //window size
+float pointSize = 5.0;
 
-// float angle = 0.0f;
-
-// float SunPos[] = {0, 0, 0};
-// float EarthPos[] = {1, 0, 0};
-// float MoonPos[] = {0.5f, 0, 0};
-
-// float EarthTheta = 45;
-// float MoonTheta = 45;
-
-// float SunGamma = 0;
-// float EarthGamma = 0;
-// float MoonGamma = 0;
-
-// float SceneScale = 0.75f;
-
-// float SunSize = 1;
-// float EarthSize = 0.5f;
-// float MoonSize = 0.25f;
+// float angle = 0.25f;
 
 void putPixel(int x, int y)
 {
 	glColor3f(0.3, 0.2, 0.0); //white
+	glPointSize(pointSize);
 	glBegin(GL_POINTS);
 	glVertex2i(x, y); //sets pixel coord
 	glEnd();
 	glFlush();
 }
 
-void display2()  
-  {  
-   glClearColor(1.0, 1.0, 1.0, 1.0);  
-   glColor3f(0.2, 0.3, 0.3);  
-   glClear(GL_COLOR_BUFFER_BIT);  
-   glFlush();
-   glutSwapBuffers(); 
-  }  
-
 /* display function - GLUT display callback function
  *		clears the screen, sets the camera position, draws the ground plane and movable box
  */
 void display(void)
 {
-	//angle++;
-	// EarthTheta++;
-	// MoonTheta++;
-
-	// EarthGamma += 2;
-	// MoonGamma += 2;
-	// SunGamma += 2;
-
-	glClear(GL_COLOR_BUFFER_BIT);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
-
-	// if (click)
-	// {
-	// 	printf("draw");
-	// 	putPixel(xi, yi);
-	// }
-
-	gluLookAt(camPos[0], camPos[1], camPos[2], 0, 0, 0, 0, 1, 0);
-
-	//scale the entire solar system
-	//glScalef(SceneScale, SceneScale, SceneScale);
-
-	// //sun level
-	// glPushMatrix();
-	// glRotatef(SunGamma, 0, 0, 1);
-	// glColor3f(0, 0, 1); //blue super giant!!!!!!!!!! @_@
-	// glutSolidTeapot(1);
-	// glPopMatrix();
-
-	// //earth level
-	// glPushMatrix();
-	// glRotatef(EarthTheta, 0, 0, 1);
-	// glTranslatef(EarthPos[X], EarthPos[Y], EarthPos[Z]);
-
-	// //earth stuff
-	// glPushMatrix();
-	// glRotatef(EarthGamma, 0, 0, 1);
-	// glScalef(EarthSize, EarthSize, EarthSize);
-	// glColor3f(0, 1, 0);
-	// glutSolidTeapot(1);
-	// glPopMatrix();
-
-	// //moon level & moon stuff
-	// glPushMatrix();
-	// glRotatef(MoonTheta, 0, 0, 1);
-	// glTranslatef(MoonPos[X], MoonPos[Y], MoonPos[Z]);
-	// glRotatef(MoonGamma, 0, 0, 1);
-	// glScalef(MoonSize, MoonSize, MoonSize);
-	// glColor3f(1, 0.82f, 0.863f);
-	// glutSolidTeapot(1);
-	// glPopMatrix();
-
-	// glPopMatrix();
-
-	////draw the teapot
-	//glRotatef(angle, 0, 1, 0);
-
-	/*
-	glPushMatrix();
-		glColor3f(1,0,0);
-		glTranslatef(0.5f, 0 , 0);
-		//glRotatef(45, 0, 0, 1);
-		//glScalef(0.5f, 0.5f, 0.5f);
-
-		glutSolidCube(1);
-	glPopMatrix();
-
-	glPushMatrix();
-		glColor3f(0,0,1);
-		//glScalef(0.5f, 0.5f, 0.5f);
-		glTranslatef(0.5f, 0 ,0);
-		
-		glScalef(0.5f, 0.5f, 0.5f);
-
-		glTranslatef(0.5f, 0 ,0);
-		glRotatef(45, 0, 0, 1);
-		glutSolidCube(1);
-	glPopMatrix();*/
-
-	//glutSolidTeapot(1);
-
-	//flush out to single buffer
+	glColor3f(0.2, 0.3, 0.3);
+	//glClear(GL_COLOR_BUFFER_BIT);
 	glutSwapBuffers();
 }
 
@@ -249,12 +141,26 @@ void keyboard(unsigned char key, int xIn, int yIn)
 	case 27: //27 is the esc key
 		exit(0);
 		break;
+	case 'm': //increase brush size
+		printf("Increasing brush size\n");
+		pointSize++;
+		printf("Current brush size is: %.0f\n", pointSize);
+		break;
+	case 'n': //decrease brush size
+		printf("Decreasing brush size\n");
+		pointSize--;
+		if(pointSize <= 1.00){ //minimum size is 1.00
+			pointSize = 1.00;
+		}
+		printf("Current brush size is: %.0f\n", pointSize);
+		break;
 
 	case 'x':
 		if (mod == GLUT_ACTIVE_ALT)
 			printf("x ALT\n");
 		else
 			printf("x\n");
+		break;
 	}
 }
 
@@ -306,7 +212,8 @@ void mouse(int btn, int state, int x, int y)
 		case 1:
 			xf = x;
 			yf = (wh - y);
-			bresenhamAlg(xi, yi, xf, yf);
+			//bresenhamAlg(xi, yi, xf, yf);
+			putPixel(xf, yf);
 			first = 0;
 			break;
 		}
@@ -316,6 +223,11 @@ void mouse(int btn, int state, int x, int y)
 void mouseMotion(int x, int y)
 {
 	//printf("mouseMotion coords: %i,%i\n", x, y);
+	xf = x;
+	yf = (wh - y);
+	//bresenhamAlg(xi, yi, xf, yf);
+	putPixel(xf, yf);
+	first = 0;
 }
 void mousePassiveMotion(int x, int y)
 {
@@ -330,23 +242,7 @@ void init(void)
 	glLoadIdentity();
 	gluOrtho2D(0.0, (GLdouble)ww, 0.0, (GLdouble)wh);
 	glMatrixMode(GL_MODELVIEW);
-	// glClearColor(0, 0, 0, 0);
-	// glColor3f(1, 1, 1);
-
-	// glLoadIdentity();
-	// gluPerspective(45, 1, 1, 100);
 }
-
-// void reshape(int w, int h)
-// {
-// 	glMatrixMode(GL_PROJECTION);
-// 	glLoadIdentity();
-// 	//gluOrtho2D(0, w, 0, h);
-// 	gluPerspective(45, (float)((w + 0.0f) / h), 1, 100);
-
-// 	glMatrixMode(GL_MODELVIEW);
-// 	glViewport(0, 0, w, h);
-// }
 
 void FPSTimer(int value)
 { //60fps
@@ -436,8 +332,7 @@ int main(int argc, char **argv)
 	Instructions ins;
 	ins.instructions();
 	glutInit(&argc, argv); //starts up GLUT
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
-	//glutInitDisplayMode (GLUT_SINGLE | GLUT_RGB); 
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 
 	glutInitWindowSize(ww, wh);
 	glutInitWindowPosition(50, 50);
@@ -445,9 +340,10 @@ int main(int argc, char **argv)
 	glutCreateWindow("Paint Program"); //creates the window
 
 	//display callback
-	//glutDisplayFunc(display);
-	glutDisplayFunc(display2);
+	glutDisplayFunc(display);
 	init();
+	glClearColor(1.0, 1.0, 1.0, 1.0);
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	//keyboard callback
 	glutKeyboardFunc(keyboard);
@@ -457,9 +353,6 @@ int main(int argc, char **argv)
 	glutMouseFunc(mouse);
 	glutMotionFunc(mouseMotion);
 	glutPassiveMotionFunc(mousePassiveMotion);
-
-	//resize callback
-	//glutReshapeFunc(reshape);
 
 	//fps timer callback
 	glutTimerFunc(17, FPSTimer, 0);
