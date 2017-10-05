@@ -14,22 +14,31 @@
 #include "instructions.h"
 
 //Globals
+Instructions ins;
 bool click = false;
+bool isDrawPoint = true;
+bool isDrawLine = false;
+bool isDrawRect = false;
+bool isDrawCircle = false;
+bool isDrawRadial = false;
 int xi, yi, xf, yf;
 int first = 0;
 int ww = 600, wh = 600; //window size
-float pointSize = 5.0;
+float pointSize = 7.0;
+float red = 0.0;   //red
+float green = 0.0; //green
+float blue = 0.0;  //blue
 
 // float angle = 0.25f;
 
 void putPixel(int x, int y)
 {
-	glColor3f(0.3, 0.2, 0.0); //white
+	glColor3f(red, green, blue); //white
 	glPointSize(pointSize);
 	glBegin(GL_POINTS);
 	glVertex2i(x, y); //sets pixel coord
 	glEnd();
-	glFlush();
+	//glFlush();
 }
 
 /* display function - GLUT display callback function
@@ -44,7 +53,7 @@ void display(void)
 
 //-----------------------------------------------------------------
 
-void bresenhamAlg(int x0, int y0, int x1, int y1)
+void bresenhamAlg(int x0, int y0, int x1, int y1) //copied from internet
 {
 	int dx = abs(x1 - x0);
 	int dy = abs(y1 - y0);
@@ -139,6 +148,7 @@ void keyboard(unsigned char key, int xIn, int yIn)
 	{
 	case 'q':
 	case 27: //27 is the esc key
+		printf("Quitting Program, see you later!\n");
 		exit(0);
 		break;
 	case 'm': //increase brush size
@@ -149,17 +159,27 @@ void keyboard(unsigned char key, int xIn, int yIn)
 	case 'n': //decrease brush size
 		printf("Decreasing brush size\n");
 		pointSize--;
-		if(pointSize <= 1.00){ //minimum size is 1.00
+		if (pointSize <= 1.00)
+		{ //minimum size is 1.00
 			pointSize = 1.00;
 		}
 		printf("Current brush size is: %.0f\n", pointSize);
 		break;
 
-	case 'x':
+	case 'd':
 		if (mod == GLUT_ACTIVE_ALT)
-			printf("x ALT\n");
+		{
+			printf("ALT + d: Screen cleared\n");
+			glClear(GL_COLOR_BUFFER_BIT);
+		}
 		else
-			printf("x\n");
+		{
+			printf("Hold Alt and tap 'd' to clear screen\n");
+		}
+		break;
+	case 'h': //help
+		printf("Help! Printing instructions\n");
+		ins.instructions();
 		break;
 	}
 }
@@ -177,7 +197,7 @@ void special(int key, int xIn, int yIn)
 //mouse
 void mouse(int btn, int state, int x, int y)
 {
-	printf("mouseFunc coords: %i,%i\n", x, y);
+	//printf("mouseFunc coords: %i,%i\n", x, y);
 	if (btn == GLUT_RIGHT_BUTTON)
 	{
 		//		printf("Clicked outside of menu, menu closed.\n");
@@ -201,33 +221,57 @@ void mouse(int btn, int state, int x, int y)
 	// }
 	if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
-		printf("LEFT DOWN");
-		switch (first)
+		if (isDrawLine)
 		{
-		case 0:
-			xi = x;
-			yi = (wh - y);
-			first = 1;
-			break;
-		case 1:
-			xf = x;
-			yf = (wh - y);
-			//bresenhamAlg(xi, yi, xf, yf);
-			putPixel(xf, yf);
-			first = 0;
-			break;
+			//printf("LEFT DOWN");
+			switch (first)
+			{
+			case 0:
+				xi = x;
+				yi = (wh - y);
+				first = 1;
+				break;
+			case 1:
+				xf = x;
+				yf = (wh - y);
+				bresenhamAlg(xi, yi, xf, yf);
+				//putPixel(xf, yf);
+				first = 0;
+				break;
+			}
+		}
+		else if (isDrawRect)
+		{
+		}
+		else if (isDrawCircle)
+		{
+		}
+		else if (isDrawRadial)
+		{
 		}
 	}
 	//glutPostRedisplay();
 }
 void mouseMotion(int x, int y)
 {
-	//printf("mouseMotion coords: %i,%i\n", x, y);
-	xf = x;
-	yf = (wh - y);
-	//bresenhamAlg(xi, yi, xf, yf);
-	putPixel(xf, yf);
-	first = 0;
+	// if (draw brush)
+	// {
+	// 	xf = x;
+	// 	yf = (wh - y);
+	// 	bresenhamAlg(x, y, xf, yf);
+	// 	//putPixel(xf, yf);
+	// }
+
+	if (isDrawPoint)
+	{
+		xi = x;
+		yi = (wh - y);
+		bresenhamAlg(xi, yi, xf, yf);
+		//putPixel(xf, yf);
+
+		xf = xi;
+		yf = yi;
+	}
 }
 void mousePassiveMotion(int x, int y)
 {
@@ -250,54 +294,113 @@ void FPSTimer(int value)
 	glutPostRedisplay();
 }
 
+double randd() {
+	return (double)rand() / (RAND_MAX + 1.0);
+  }
+
 //menu stuff
 void mainMenuProc(int value)
 {
-	if (value == 1)
-	{ //clear screen
-		printf("Screen cleared.\n");
-	}
-	if (value == 2)
-	{ //choose random colour
-		printf("Colour x selected at random.\n");
-	}
-	if (value == 3)
-	{ //radial paintBrush
-		printf("Selected Radial PaintBrush.\n");
-	}
-	if (value == 4)
+	switch (value)
 	{
+
+	case 1: //clear screen
+		glClear(GL_COLOR_BUFFER_BIT);
+		printf("Screen cleared.\n");
+		break;
+	case 2: //choose random colour
+		printf("Colour x selected at random.\n");
+		red = randd();
+		green = randd();
+		blue = randd();
+		printf("Colour scheme: Red %.1f, Green %.1f, Blue %.1f.\n", red, green, blue);
+		break;
+	case 3: //radial paintBrush
+		printf("Selected Radial PaintBrush.\n");
+		break;
+	case 4:
 		printf("Quitting Program, see you later!\n");
 		exit(0);
+	default:
+		break;
 	}
 }
 
 //could use a seperate menu processor for submenu!
 void shapesMenuProc(int value)
 {
-	if (value == 1) //Point
+	switch (value)
+	{
+	case 1: //Point
+		isDrawPoint = true;
+		isDrawLine = false;
+		isDrawRect = false;
+		isDrawCircle = false;
 		printf("Point selected.\n");
-	if (value == 2)
-
+		break;
+	case 2:
+		isDrawPoint = false;
+		isDrawLine = true;
+		isDrawRect = false;
+		isDrawCircle = false;
 		printf("Line selected.\n");
-	if (value == 3)
+		break;
+	case 3:
+		isDrawPoint = false;
+		isDrawLine = false;
+		isDrawRect = true;
+		isDrawCircle = false;
 		printf("Rectangle selected\n");
-	if (value == 4)
+		break;
+	case 4:
+		isDrawPoint = false;
+		isDrawLine = false;
+		isDrawRect = false;
+		isDrawCircle = true;
 		printf("Circle selected\n");
+		break;
+	default:
+		break;
+	}
 }
 
 void colourMenuProc(int value)
 {
-	if (value == 1) //Red
+	switch (value)
+	{
+	case 1: //Red
+		red = 1.0;
+		green = 0.0;
+		blue = 0.0;
 		printf("Red selected.\n");
-	if (value == 2) //Green
+		break;
+	case 2: //Green
+		red = 0.0;
+		green = 1.0;
+		blue = 0.0;
 		printf("Green selected.\n");
-	if (value == 3) //Blue
+		break;
+	case 3: //Blue
+		red = 0.0;
+		green = 0.0;
+		blue = 1.0;
 		printf("Blue selected\n");
-	if (value == 4) //Purple
+		break;
+	case 4: //Purple
+		red = 0.6;
+		green = 0.2;
+		blue = 0.8;
 		printf("Purple selected\n");
-	if (value == 5) //Yellow
+		break;
+	case 5: //Yellow
 		printf("Yellow selected\n");
+		red = 1.0;
+		green = 1.0;
+		blue = 0.0;
+		break;
+	default:
+		break;
+	}
 }
 
 void createMenu()
@@ -329,7 +432,6 @@ void createMenu()
 /* main function - program entry point */
 int main(int argc, char **argv)
 {
-	Instructions ins;
 	ins.instructions();
 	glutInit(&argc, argv); //starts up GLUT
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
@@ -344,6 +446,7 @@ int main(int argc, char **argv)
 	init();
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
+	createMenu();
 
 	//keyboard callback
 	glutKeyboardFunc(keyboard);
@@ -355,9 +458,7 @@ int main(int argc, char **argv)
 	glutPassiveMotionFunc(mousePassiveMotion);
 
 	//fps timer callback
-	glutTimerFunc(17, FPSTimer, 0);
-
-	createMenu();
+	glutTimerFunc(5, FPSTimer, 0);
 
 	glutMainLoop(); //starts the event glutMainLoop
 	return (0);		//return may not be necessary on all compilers
