@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -25,30 +26,16 @@ int xi, yi, xf, yf;
 int first = 0;
 int ww = 600, wh = 600; //window size
 float pointSize = 7.0;
-float red = 0.0;   //red
-float green = 0.0; //green
-float blue = 0.0;  //blue
-
-// float angle = 0.25f;
+float red, green, blue = 0.0f; //colour used to draw
 
 void putPixel(int x, int y)
 {
-	glColor3f(red, green, blue); //white
+	glColor3f(red, green, blue);
 	glPointSize(pointSize);
 	glBegin(GL_POINTS);
-	glVertex2i(x, y); //sets pixel coord
+	//glVertex2i(x, y); //sets pixel coord
+	glVertex2f((GLdouble) x, (GLdouble) y);
 	glEnd();
-	//glFlush();
-}
-
-/* display function - GLUT display callback function
- *		clears the screen, sets the camera position, draws the ground plane and movable box
- */
-void display(void)
-{
-	glColor3f(0.2, 0.3, 0.3);
-	//glClear(GL_COLOR_BUFFER_BIT);
-	glutSwapBuffers();
 }
 
 //-----------------------------------------------------------------
@@ -138,6 +125,128 @@ void bresenhamAlg(int x0, int y0, int x1, int y1) //copied from internet
 	}
 }
 
+void drawPoints(int x, int y) {
+	//xi = x;
+	//yi = (wh - y); //invert axis
+	bresenhamAlg(xf, wh - yf, x, wh - y);
+	//putPixel(xf, yf);
+
+	xf = x;
+	yf = y;
+	//display
+	// {
+	// 	switch (first)
+	// 	{
+	// 	case 0:
+	// 		xi = x;
+	// 		yi = (wh - y);
+	// 		first = 1;
+	// 		break;
+	// 	case 1:
+	// 		xf = x;
+	// 		yf = (wh - y);
+	// 		bresenhamAlg(xi, yi, xf, yf);
+	// 		//putPixel(xf, yf);
+	// 		first = 0;
+	// 		break;
+	// 	}
+	// }
+}
+
+void drawLine(int x, int y)
+{
+	switch (first)
+	{
+	case 0:
+		xi = x;
+		yi = (wh - y);
+		first = 1;
+		break;
+	case 1:
+		xf = x;
+		yf = (wh - y);
+		bresenhamAlg(xi, yi, xf, yf);
+		//putPixel(xf, yf);
+		first = 0;
+		break;
+	}
+}
+
+void drawRect(int x, int y)
+{
+	switch (first)
+	{
+	case 0:
+		xi = x;
+		yi = (wh - y);
+		first = 1;
+		break;
+	case 1:
+		xf = x;
+		yf = (wh - y);
+		bresenhamAlg(xi, yi, xf, yi); // connect 4 lines based off two opposite coords
+		bresenhamAlg(xi, yi, xi, yf);
+		bresenhamAlg(xf, yi, xf, yf);
+		bresenhamAlg(xi, yf, xf, yf);
+		//putPixel(xf, yf);
+		first = 0;
+		break;
+	}
+}
+
+// void drawCircle(int x, int y) {
+// 	{		
+// 			for ( float angle = 0; angle <= 2*3.142; angle+=0.1)
+// 		{
+// 			x =( .3) * cos (angle);
+// 			y =( .3) * sin (angle);
+// 			putPixel(x, y);
+// 				}
+// 	}
+// }
+
+void drawCircle(int x, int y){
+	switch (first)
+	{
+	case 0:
+		xi = x;
+		yi = (wh - y);
+		first = 1;
+		break;
+	case 1:
+		xf = x;
+		yf = (wh - y);
+		
+		
+
+		float r = sqrt( (xf-x) * (xf-x) + (yf-y) * (yf-y) );    //equation of a circle is r = x^2 + y^2
+		float deg = 0.0174532925;
+		for (float theta = deg; theta <= 361*deg; theta+=deg){
+			bresenhamAlg(
+				(x + r*cos(theta)), 
+				(y + r*sin(theta)),
+				(x + r*cos(theta+deg)), 
+				(y + r*sin(theta+deg))
+			);
+		}
+
+
+		
+		first = 0;
+		break;
+	}
+}
+
+/* display function - GLUT display callback function
+ *		clears the screen, sets the camera position, draws the ground plane and movable box
+ */
+void display(void)
+{
+	glColor3f(0.2, 0.3, 0.3);
+	//glClear(GL_COLOR_BUFFER_BIT);
+	glutSwapBuffers();
+}
+
 //**************************************************
 //OpenGL functions
 //keyboard stuff
@@ -197,54 +306,24 @@ void special(int key, int xIn, int yIn)
 //mouse
 void mouse(int btn, int state, int x, int y)
 {
-	//printf("mouseFunc coords: %i,%i\n", x, y);
-	if (btn == GLUT_RIGHT_BUTTON)
-	{
-		//		printf("Clicked outside of menu, menu closed.\n");
-	}
-	// if (btn == GLUT_LEFT_BUTTON)
-	// {
-	// 	printf("Left button\n");
-
-	// 	if (state == GLUT_UP)
-	// 	{
-	// 		printf("Released\n");
-	// 	}
-
-	// 	if (state == GLUT_DOWN)
-	// 	{
-	// 		printf("Pressed\n");
-	// 		click = true;
-	// 		xi = x;
-	// 		yi = y;
-	// 	}
-	// }
 	if (btn == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
 	{
+		xf = x;
+		yf = y;
+		if (isDrawPoint){
+			drawPoints(x, y);
+		}
 		if (isDrawLine)
 		{
-			//printf("LEFT DOWN");
-			switch (first)
-			{
-			case 0:
-				xi = x;
-				yi = (wh - y);
-				first = 1;
-				break;
-			case 1:
-				xf = x;
-				yf = (wh - y);
-				bresenhamAlg(xi, yi, xf, yf);
-				//putPixel(xf, yf);
-				first = 0;
-				break;
-			}
+			drawLine(x, y);
 		}
 		else if (isDrawRect)
 		{
+			drawRect(x, y);
 		}
 		else if (isDrawCircle)
 		{
+			drawCircle(x, y); //fix radius
 		}
 		else if (isDrawRadial)
 		{
@@ -261,16 +340,9 @@ void mouseMotion(int x, int y)
 	// 	bresenhamAlg(x, y, xf, yf);
 	// 	//putPixel(xf, yf);
 	// }
-
 	if (isDrawPoint)
 	{
-		xi = x;
-		yi = (wh - y);
-		bresenhamAlg(xi, yi, xf, yf);
-		//putPixel(xf, yf);
-
-		xf = xi;
-		yf = yi;
+		drawPoints(x, y);
 	}
 }
 void mousePassiveMotion(int x, int y)
@@ -294,9 +366,10 @@ void FPSTimer(int value)
 	glutPostRedisplay();
 }
 
-double randd() {
+double randd()
+{ //stackoverflow
 	return (double)rand() / (RAND_MAX + 1.0);
-  }
+}
 
 //menu stuff
 void mainMenuProc(int value)
