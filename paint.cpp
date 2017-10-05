@@ -33,7 +33,7 @@ void putPixel(int x, int y)
 	glPointSize(pointSize);
 	glBegin(GL_POINTS);
 	//glVertex2i(x, y); //sets pixel coord
-	glVertex2f((GLdouble) x, (GLdouble) y);
+	glVertex2f((GLdouble)x, (GLdouble)y);
 	glEnd();
 }
 
@@ -124,7 +124,8 @@ void bresenhamAlg(int x0, int y0, int x1, int y1) //copied from internet
 	}
 }
 
-void drawPoints(int x, int y) {
+void drawPoints(int x, int y)
+{
 	//xi = x;
 	//yi = (wh - y); //invert axis
 	bresenhamAlg(xf, wh - yf, x, wh - y);
@@ -194,7 +195,7 @@ void drawRect(int x, int y)
 }
 
 // void drawCircle(int x, int y) {
-// 	{		
+// 	{
 // 			for ( float angle = 0; angle <= 2*3.142; angle+=0.1)
 // 		{
 // 			x =( .3) * cos (angle);
@@ -204,7 +205,8 @@ void drawRect(int x, int y)
 // 	}
 // }
 
-void drawCircle(int x, int y){
+void drawCircle(int x, int y)
+{
 	switch (first)
 	{
 	case 0:
@@ -215,15 +217,15 @@ void drawCircle(int x, int y){
 	case 1:
 		xf = x;
 		yf = (wh - y);
-		float r = sqrt( (xf-x) * (xf-x) + (yf-y) * (yf-y) );//r = x^2 + y^2
-		float deg = 0.0174532925; //constant part of circle algorithm
-		for (float theta = deg; theta <= 361*deg; theta+=deg){
+		float r = sqrt((xf - x) * (xf - x) + (yf - y) * (yf - y)); //r = x^2 + y^2
+		float deg = 0.0174532925;								   //constant part of circle algorithm
+		for (float theta = deg; theta <= 361 * deg; theta += deg)
+		{
 			bresenhamAlg(
-				(x + r*cos(theta)), 
-				(y + r*sin(theta)),
-				(x + r*cos(theta+deg)), 
-				(y + r*sin(theta+deg))
-			);
+				(x + r * cos(theta)),
+				(y + r * sin(theta)),
+				(x + r * cos(theta + deg)),
+				(y + r * sin(theta + deg)));
 		}
 		first = 0;
 		break;
@@ -239,6 +241,12 @@ void display(void)
 	//glClear(GL_COLOR_BUFFER_BIT);
 	glutSwapBuffers();
 }
+
+void resize(int w, int h)
+{
+	glutReshapeWindow(ww, wh); //locks screen resize
+}
+//}
 
 //**************************************************
 //OpenGL functions
@@ -303,7 +311,8 @@ void mouse(int btn, int state, int x, int y)
 	{
 		xf = x;
 		yf = y;
-		if (isDrawPoint){
+		if (isDrawPoint)
+		{
 			drawPoints(x, y);
 		}
 		if (isDrawLine)
@@ -509,6 +518,7 @@ int main(int argc, char **argv)
 
 	//display callback
 	glutDisplayFunc(display);
+	glutReshapeFunc(resize);
 	init();
 	glClearColor(1.0, 1.0, 1.0, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);

@@ -31,6 +31,9 @@ PROGRAM_NAME= Paint.x
 run: $(PROGRAM_NAME)
 	./$(PROGRAM_NAME)$(EXEEXT)
 
+paint: $(PROGRAM_NAME)
+	./$(PROGRAM_NAME)$(EXEEXT)
+
 #when adding additional source files, such as boilerplateClass.cpp
 #or yourFile.cpp, add the filename with an object extension below
 #ie. boilerplateClass.o and yourFile.o
